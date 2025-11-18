@@ -9,7 +9,7 @@ const apiKey = require("./routes/apiKey");
 const jwt = require("./routes/jwt");
 const oAuth = require("./routes/oAuth");
 
-const { swaggerUi, swaggerSpec } = require("./config/swagger");
+const { swaggerUi, swaggerDocument } = require("./config/swagger");
 
 // Middlewares
 const app = express();
@@ -25,7 +25,13 @@ app.use(
 connectDB();
 
 // Swagger Route
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// Demo Routes
+app.use("/demo/basicAuth", require("./demo-routes/basicAuth.mock"));
+app.use("/demo/apiKey", require("./demo-routes/apiKey.mock"));
+app.use("/demo/jwt", require("./demo-routes/jwt.mock"));
+app.use("/demo/oAuth", require("./demo-routes/oAuth.mock"));
 
 // Routes for each auth method
 app.use("/basicAuth", basicAuth);

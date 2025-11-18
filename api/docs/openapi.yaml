@@ -1,0 +1,610 @@
+openapi: 3.0.0
+info:
+  title: Auth Methods API (Real + Mock)
+  version: 1.0.0
+  description: |
+    This API demonstrates **four auth methods**:
+
+    ## REAL APIs (connected to MongoDB)
+    - **Basic Auth**
+    - **API Key**
+    - **JWT**
+    - **OAuth2 Google**
+
+    ## MOCK APIs (fully in-memory)
+    - No DB calls  
+    - Never touches real auth  
+    - Demo credentials so user can freely test  
+    - Behaves like real API but isolated  
+
+servers:
+  - url: http://localhost:8080
+    description: Main API server
+
+tags:
+  - name: BasicAuth
+    description: Real BasicAuth (MongoDB)
+  - name: DemoBasicAuth
+    description: Mock BasicAuth (in-memory)
+  - name: ApiKey
+    description: Real API Key auth
+  - name: DemoApiKey
+    description: Mock API Key auth
+  - name: JWT
+    description: Real JWT auth
+  - name: DemoJWT
+    description: Mock JWT auth
+  - name: OAuth
+    description: Real Google OAuth2
+  - name: DemoOAuth
+    description: Mock OAuth2 (no Google calls)
+
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: "Real Basic Auth (DB)."
+
+    demoBasicAuth:
+      type: http
+      scheme: basic
+      description: |
+        Demo BasicAuth Credentials:
+        - **username:** demo
+        - **password:** demo123
+
+    apiKeyHeader:
+      type: apiKey
+      name: x-api-key
+      in: header
+      description: "Real API Key authentication."
+
+    demoApiKeyHeader:
+      type: apiKey
+      name: x-api-key
+      in: header
+      description: |
+        Demo API Key:
+        - **x-api-key: DEMO-KEY-123**
+
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Real JWT Bearer token"
+
+    demoJwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Demo JWT:
+        - Use **any username**  
+        - Token generated via /demo/jwt/login
+
+    googleAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Real Google access token"
+
+    demoGoogleAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Demo OAuth token:
+        - **Authorization: Bearer DEMO-GOOGLE-TOKEN**
+
+  schemas:
+    Product:
+      type: object
+      required: [name, category, price]
+      properties:
+        id:
+          type: string
+          example: "1731611819"
+        name:
+          type: string
+          example: iPhone 15
+        category:
+          type: string
+          example: Mobile
+        price:
+          type: number
+          example: 89999
+
+paths:
+
+  #################################################
+  # REAL BASIC AUTH
+  #################################################
+
+  /basicAuth/get:
+    get:
+      tags: [BasicAuth]
+      summary: Get all products (real)
+      security: [{ basicAuth: [] }]
+      responses:
+        200:
+          description: Product list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /basicAuth/add:
+    post:
+      tags: [BasicAuth]
+      summary: Add product (real)
+      security: [{ basicAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        200:
+          description: Product added
+
+  /basicAuth/update/{id}:
+    patch:
+      tags: [BasicAuth]
+      summary: Update product (real)
+      security: [{ basicAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        200:
+          description: Updated product
+
+  /basicAuth/delete/{id}:
+    delete:
+      tags: [BasicAuth]
+      summary: Delete product (real)
+      security: [{ basicAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        200:
+          description: Deleted
+
+
+  #################################################
+  # MOCK BASIC AUTH
+  #################################################
+
+  /demo/basicAuth/get:
+    get:
+      tags: [DemoBasicAuth]
+      summary: Get products (mock)
+      security: [{ demoBasicAuth: [] }]
+      responses:
+        200:
+          description: Mock list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /demo/basicAuth/add:
+    post:
+      tags: [DemoBasicAuth]
+      summary: Add product (mock)
+      security: [{ demoBasicAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        200:
+          description: Added
+
+  /demo/basicAuth/update/{id}:
+    patch:
+      tags: [DemoBasicAuth]
+      summary: Update product (mock)
+      security: [{ demoBasicAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        200:
+          description: Updated
+
+  /demo/basicAuth/delete/{id}:
+    delete:
+      tags: [DemoBasicAuth]
+      summary: Delete product (mock)
+      security: [{ demoBasicAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        200:
+          description: Deleted
+
+
+  #################################################
+  # REAL API KEY AUTH
+  #################################################
+
+  /apiKey/get:
+    get:
+      tags: [ApiKey]
+      summary: Get all products (real)
+      security: [{ apiKeyHeader: [] }]
+      responses:
+        200:
+          description: Product list
+
+  /apiKey/add:
+    post:
+      tags: [ApiKey]
+      summary: Add product (real)
+      security: [{ apiKeyHeader: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Product" }
+      responses:
+        200:
+          description: Added
+
+  /apiKey/update/{id}:
+    patch:
+      tags: [ApiKey]
+      summary: Update product (real)
+      security: [{ apiKeyHeader: [] }]
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema: { type: string }
+      responses:
+        200:
+          description: Updated
+
+  /apiKey/delete/{id}:
+    delete:
+      tags: [ApiKey]
+      summary: Delete product (real)
+      security: [{ apiKeyHeader: [] }]
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema: { type: string }
+      responses:
+        200:
+          description: Deleted
+
+
+  #################################################
+  # MOCK API KEY
+  #################################################
+
+  /demo/apiKey/get:
+    get:
+      tags: [DemoApiKey]
+      summary: Get products (mock)
+      security: [{ demoApiKeyHeader: [] }]
+      responses:
+        200:
+          description: Mock list
+
+  /demo/apiKey/add:
+    post:
+      tags: [DemoApiKey]
+      summary: Add product (mock)
+      security: [{ demoApiKeyHeader: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Product"
+      responses:
+        200:
+          description: Added
+
+  /demo/apiKey/update/{id}:
+    patch:
+      tags: [DemoApiKey]
+      summary: Update product (mock)
+      security: [{ demoApiKeyHeader: [] }]
+      parameters:
+        - name: id
+          in: path
+          schema: { type: string }
+      responses:
+        200:
+          description: Updated
+
+  /demo/apiKey/delete/{id}:
+    delete:
+      tags: [DemoApiKey]
+      summary: Delete (mock)
+      security: [{ demoApiKeyHeader: [] }]
+      parameters:
+        - name: id
+          in: path
+          schema: { type: string }
+      responses:
+        200:
+          description: Deleted
+
+
+  #################################################
+  # REAL JWT
+  #################################################
+
+  /jwt/login:
+    post:
+      tags: [JWT]
+      summary: Login to get token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        200:
+          description: JWT token
+
+  /jwt/get:
+    get:
+      tags: [JWT]
+      summary: Get list (real)
+      security: [{ jwtAuth: [] }]
+      responses:
+        200:
+          description: OK
+
+  /jwt/add:
+    post:
+      tags: [JWT]
+      summary: Add (real)
+      security: [{ jwtAuth: [] }]
+      responses:
+        200:
+          description: Added
+
+  /jwt/update/{id}:
+    patch:
+      tags: [JWT]
+      summary: Update (real)
+      security: [{ jwtAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          schema: { type: string }
+      responses:
+        200:
+          description: Updated
+
+  /jwt/delete/{id}:
+    delete:
+      tags: [JWT]
+      summary: Delete (real)
+      security: [{ jwtAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          schema: { type: string }
+      responses:
+        200:
+          description: Deleted
+
+
+  #################################################
+  # MOCK JWT
+  #################################################
+
+  /demo/jwt/login:
+    post:
+      tags: [DemoJWT]
+      summary: Demo login — returns mock JWT
+      requestBody:
+        required: false
+      responses:
+        200:
+          description: Returns demo JWT
+
+  /demo/jwt/get:
+    get:
+      tags: [DemoJWT]
+      summary: Get (mock)
+      security: [{ demoJwtAuth: [] }]
+      responses:
+        200:
+          description: OK
+
+  /demo/jwt/add:
+    post:
+      tags: [DemoJWT]
+      summary: Add (mock)
+      security: [{ demoJwtAuth: [] }]
+      responses:
+        200:
+          description: Added
+
+  /demo/jwt/update/{id}:
+    patch:
+      tags: [DemoJWT]
+      summary: Update (mock)
+      security: [{ demoJwtAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          schema: { type: string }
+      responses:
+        200:
+          description: Updated
+
+  /demo/jwt/delete/{id}:
+    delete:
+      tags: [DemoJWT]
+      summary: Delete (mock)
+      security: [{ demoJwtAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+      responses:
+        200:
+          description: Deleted
+
+
+  #################################################
+  # REAL GOOGLE OAUTH2
+  #################################################
+
+  /oAuth/google:
+    post:
+      tags: [OAuth]
+      summary: Get Google access token using authorization code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+      responses:
+        200:
+          description: Google token
+
+  /oAuth/get:
+    get:
+      tags: [OAuth]
+      summary: Get list (real Google token)
+      security: [{ googleAuth: [] }]
+      responses:
+        200:
+          description: OK
+
+  /oAuth/add:
+    post:
+      tags: [OAuth]
+      summary: Add product (real Google token)
+      security: [{ googleAuth: [] }]
+      responses:
+        200:
+          description: Added
+
+  /oAuth/update/{id}:
+    patch:
+      tags: [OAuth]
+      summary: Update (real Google token)
+      security: [{ googleAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+      responses:
+        200:
+          description: Updated
+
+  /oAuth/delete/{id}:
+    delete:
+      tags: [OAuth]
+      summary: Delete
+      security: [{ googleAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+      responses:
+        200:
+          description: Deleted
+
+
+  #################################################
+  # MOCK OAUTH2
+  #################################################
+
+  /demo/oAuth/login:
+    post:
+      tags: [DemoOAuth]
+      summary: Returns demo Google token (mock)
+      requestBody:
+        required: false
+      responses:
+        200:
+          description: Demo user token
+
+  /demo/oAuth/get:
+    get:
+      tags: [DemoOAuth]
+      summary: Get list (mock OAuth2)
+      security: [{ demoGoogleAuth: [] }]
+      responses:
+        200:
+          description: OK
+
+  /demo/oAuth/add:
+    post:
+      tags: [DemoOAuth]
+      summary: Add product (mock OAuth)
+      security: [{ demoGoogleAuth: [] }]
+      responses:
+        200:
+          description: Added
+
+  /demo/oAuth/update/{id}:
+    patch:
+      tags: [DemoOAuth]
+      summary: Update (mock OAuth)
+      security: [{ demoGoogleAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+      responses:
+        200:
+          description: Updated
+
+  /demo/oAuth/delete/{id}:
+    delete:
+      tags: [DemoOAuth]
+      summary: Delete (mock OAuth)
+      security: [{ demoGoogleAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+      responses:
+        200:
+          description: Deleted
