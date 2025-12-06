@@ -33,7 +33,7 @@ info:
     ### Demo Credentials in Authorize Menu 
 
     ---
-    # 📌 ROUTE INDEX
+    # 📌 ROUTE
 
     ### REAL AUTH ROUTES
     - BasicAuth → `/basicAuth/...`
