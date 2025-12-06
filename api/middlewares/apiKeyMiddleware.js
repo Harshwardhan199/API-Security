@@ -2,7 +2,7 @@ const ApiKey = require("../models/ApiKey"); // your Mongo model
 
 module.exports = async (req, res, next) => {
   try {
-    const apiKey = req.headers["x-api-key"];
+    const apiKey = req.headers["api-key"];
 
     if (!apiKey) {
       return res.status(401).json({ message: "API Key missing" });

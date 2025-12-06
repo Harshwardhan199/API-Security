@@ -39,5 +39,8 @@ app.use("/apiKey", apiKey);
 app.use("/jwt", jwt);
 app.use("/oAuth", oAuth);
 
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running http://localhost:${PORT}`);
+  console.log(`Api docs at http://localhost:${PORT}/api-docs`);
+});
