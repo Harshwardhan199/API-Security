@@ -1,17 +1,30 @@
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
+
+const User = require("../models/User");
 const Product = require("../models/Product");
 const jwtAuth = require("../middlewares/jwtMiddleware");
 
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  if (username === "admin" && password === "password123") {
-    const token = jwt.sign({ username }, process.env.JWT_SECRET || "myjwtsecret", { expiresIn: "1h" });
-    res.json({ token });
-  } else {
-    res.status(401).json({ message: "Invalid credentials" });
+
+  // 🔍 Find user in MongoDB
+  const user = await User.findOne({ username });
+  if (!user) {
+    return res.status(401).json({ message: "Invalid credentials" });
   }
+
+  // 🔐 Compare password with hashed password
+  //const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch = (password == user.password);
+
+  if (!isMatch) {
+    return res.status(401).json({ message: "Invalid credentials" });
+  }
+
+  const token = jwt.sign({ username }, process.env.JWT_SECRET || "myjwtsecret", { expiresIn: "1h" });
+  res.json({ token });
 });
 
 router.post("/add", jwtAuth, async (req, res) => {

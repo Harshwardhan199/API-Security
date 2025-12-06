@@ -1,6 +1,7 @@
 const express = require("express");
 const axios = require("axios");
 const Product = require("../models/Product");
+const OAuth = require("../middlewares/oAuthMiddleware");
 
 const router = express.Router();
 
@@ -34,41 +35,24 @@ router.post("/google", async (req, res) => {
   }
 });
 
-// -------------------- MIDDLEWARE --------------------
-const verifyGoogleAccessToken = async (req, res, next) => {
-  try {
-    const token = req.headers.authorization?.split(" ")[1];
-
-    const response = await axios.get(
-      `https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`
-    );
-    req.user = response.data;
-    next();
-
-  } catch (error) {
-    console.error("Token verify error:", error.response?.data || error.message);
-    return res.status(401).json({ message: "Invalid or expired Google access token" });
-  }
-};
-
 // -------------------- CRUD ROUTES --------------------
 
-router.post("/add", verifyGoogleAccessToken, async (req, res) => {
+router.post("/add", OAuth, async (req, res) => {
   const product = await Product.create(req.body);
   res.json(product);
 });
 
-router.get("/get", verifyGoogleAccessToken, async (req, res) => {
+router.get("/get", OAuth, async (req, res) => {
   const products = await Product.find();
   res.json(products);
 });
 
-router.patch("/update/:id", verifyGoogleAccessToken, async (req, res) => {
+router.patch("/update/:id", OAuth, async (req, res) => {
   const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
   res.json(product);
 });
 
-router.delete("/delete/:id", verifyGoogleAccessToken, async (req, res) => {
+router.delete("/delete/:id", OAuth, async (req, res) => {
   await Product.findByIdAndDelete(req.params.id);
   res.json({ message: "Product deleted" });
 });

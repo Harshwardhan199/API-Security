@@ -1,6 +1,6 @@
-Add these in mongoDB in respective collections:
+Insert these documents in mongoDB in respective collections:
 
-users:-
+<!-- users:- -->
 {
   "_id": {
     "$oid": "691bef269d2663d4f11ea081"
@@ -17,8 +17,7 @@ users:-
   "password": "test123"
 }
 
-
-apiKeys:-
+<!-- apiKeys:- -->
 {
   "_id": {
     "$oid": "691bef969d2663d4f11ea089"
@@ -36,3 +35,7 @@ apiKeys:-
   "owner": "Test",
   "active": true
 }
+
+<!-- Note -->: 
+1. ADD products in DB using the client for ease or the hard way using Postman. 
+2. For ready to Postman setup import the collection "API Security.postman_collection.json" in the Postman.

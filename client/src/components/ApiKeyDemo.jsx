@@ -11,7 +11,7 @@ export default function ApiKeyCRUD() {
   const [message, setMessage] = useState("");
 
   const getAuthHeader = () => ({
-    "x-api-key": apiKey,
+    "api-key": apiKey,
   });
 
   const fetchProducts = async () => {
